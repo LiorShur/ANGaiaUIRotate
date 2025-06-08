@@ -148,9 +148,9 @@ window.addEventListener("deviceorientation", handleOrientation, true);
 document.getElementById("rotationToggle").addEventListener("click", toggleRotation);
 
 // 3. Visibility change: pause rotation when app tab is hidden
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) stopRotation();
-});
+// document.addEventListener("visibilitychange", () => {
+//   if (document.hidden) stopRotation();
+// });
 
 function handleOrientation(e) {
   if (!rotationEnabled) return;
