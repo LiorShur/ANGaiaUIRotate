@@ -208,6 +208,9 @@ const videoIcon = L.divIcon({
 // === INIT LEAFLET MAP ===
 
 function initMap(callback) {
+
+  <div id="mapWrapper"><div id="map"></div></div>
+
   //   // If a map already exists on this container, remove it
   if (map && map.remove) {
     map.remove(); // Clean up the previous map instance
@@ -396,6 +399,7 @@ window.startTracking = function () {
     updateTimerDisplay();
     timerInterval = setInterval(updateTimerDisplay, 1000);
 
+    let alpha = event.alpha;
     if (rotationEnabled) {
       handleOrientation({ alpha: lastHeading ?? 0 });
     }
@@ -592,6 +596,7 @@ window.resumeTracking = function () {
     updateTimerDisplay();
     timerInterval = setInterval(updateTimerDisplay, 1000);
 
+    let alpha = event.alpha;
     if (rotationEnabled) {
       handleOrientation({ alpha: lastHeading ?? 0 });
     }
