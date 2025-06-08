@@ -19,6 +19,8 @@ let rotateDeg = 0;
 let headingUpdateTime = 0;
 let orientationListenerActive = false;
 let lastUpdate = 0;
+let lastRotationUpdate = 0;
+let currentRotation = 0;
 
 // const mapEl = document.getElementById("map");
 // const wrapperEl = document.getElementById("mapWrapper") || mapEl.parentNode;
