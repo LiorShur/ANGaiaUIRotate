@@ -995,6 +995,7 @@ window.loadSession = function (index) {
     showRouteDataOnMap();
     setTrackingButtonsEnabled(false);
   });
+}
 
 function drawSavedRoutePath() {
   if (!map || path.length === 0) return;
