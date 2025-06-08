@@ -51,7 +51,10 @@ function setControlButtonsEnabled(enabled) {
 }
 
 // 1. Orientation Events for Heading / Compass
-window.addEventListener("deviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation", handleOrientation, true);
+//window.addEventListener("deviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation", handleOrientation, true);
+// For device orientation (compass)
+window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+window.addEventListener("deviceorientation", handleOrientation, true);
 
 // 2. Toggle button for enabling/disabling map rotation
 document.getElementById("rotationToggle").addEventListener("click", toggleRotation);
