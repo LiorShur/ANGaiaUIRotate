@@ -139,9 +139,6 @@ function updateCompass(angle) {
     compass.style.transform = `rotate(${-angle}deg)`;
   }
 }
-}
-
-
 
 function setTrackingButtonsEnabled(enabled) {
   const startBtn = document.getElementById("startBtn");
