@@ -209,8 +209,6 @@ const videoIcon = L.divIcon({
 
 function initMap(callback) {
 
-  <div id="mapWrapper"><div id="map"></div></div>
-
   //   // If a map already exists on this container, remove it
   if (map && map.remove) {
     map.remove(); // Clean up the previous map instance
