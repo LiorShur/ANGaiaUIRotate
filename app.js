@@ -22,11 +22,6 @@ let lastUpdate = 0;
 let lastRotationUpdate = 0;
 let currentRotation = 0;
 
-// const mapEl = document.getElementById("map");
-// const wrapperEl = document.getElementById("mapWrapper") || mapEl.parentNode;
-// mapEl.style.transition = "transform 0.3s ease";
-// wrapperEl.style.overflow = "hidden";
-
 function setControlButtonsEnabled(enabled) {
   const idsToDisable = [
     "startBtn",
@@ -53,100 +48,9 @@ function setControlButtonsEnabled(enabled) {
     }
   });
 }
-// document.getElementById("toggleRotationBtn").addEventListener("click", () => {
-//   rotationEnabled = !rotationEnabled;
-//   document.getElementById("toggleRotationBtn").style.background = rotationEnabled ? "green" : "black";
-//   if (!rotationEnabled) {
-//     document.getElementById("map").style.transform = "rotate(0deg)";
-//   }
-// });
-
-// const toggleRotationButton = document.getElementById("rotationToggle");
-// toggleRotationButton.addEventListener("click", () => {
-//   rotationEnabled = !rotationEnabled;
-
-//   if (!rotationEnabled) {
-//     // 💡 Stop device orientation updates
-//     window.removeEventListener("deviceorientationabsolute", handleOrientation, true);
-//     window.removeEventListener("deviceorientation", handleOrientation, true);
-
-//     // 💡 Reset rotation CSS
-//     const container = document.getElementById("map");
-//     container.style.transform = "rotate(0deg)";
-//     container.style.transition = "transform 0.3s ease-out";
-
-//     // Optionally reset map bearing visually
-//     map.setBearing?.(0); // if using a plugin that supports setBearing
-//   } else {
-//     // 💡 Start listening again
-//     if (window.DeviceOrientationEvent) {
-//       window.addEventListener("deviceorientationabsolute", handleOrientation, true);
-//       window.addEventListener("deviceorientation", handleOrientation, true);
-//     }
-//   }
-// });
-
-// document.getElementById("rotationToggle").addEventListener("click", toggleRotation);
-
-// function smoothHeading(current, previous) {
-//   let delta = current - previous;
-//   if (delta > 180) delta -= 360;
-//   if (delta < -180) delta += 360;
-//   return previous + delta * 0.1; // adjust 0.1 for smoothness
-// }
-
-// function toggleRotation() {
-//   if (orientationListenerActive) {
-//     window.removeEventListener("deviceorientationabsolute", handleOrientation);
-//     orientationListenerActive = false;
-//     mapEl.style.transform = "rotate(0deg) scale(1)";
-//     wrapperEl.style.transform = "rotate(0deg)";
-//   } else {
-//     window.addEventListener("deviceorientationabsolute", handleOrientation);
-//     orientationListenerActive = true;
-//   }
-// };
-
-// // 🧭 Orientation Handler
-// function handleOrientation(event) {
-//   if (!orientationListenerActive || !event.alpha) return;
-
-//   const now = Date.now();
-//   if (now - lastUpdate < 100) return; // 10 fps throttle
-//   lastUpdate = now;
-
-//   const heading = event.alpha;
-//   const delta = Math.abs(heading - (lastHeading ?? heading));
-//   if (delta > 90) return; // skip sudden 180° flips
-
-//   lastHeading = heading;
-//   rotateDeg = 360 - heading;
-//   wrapperEl.style.transform = `rotate(${rotateDeg}deg)`;
-//   mapEl.style.transform = `rotate(${rotateDeg}deg) scale(1.8)`;
-
-//   // Compass Arrow (optional)
-//   const compass = document.getElementById("compassArrow");
-//   if (compass) compass.style.transform = `rotate(${heading}deg)`;
-// }
-
-// function updateCompass(angle) {
-//   document.getElementById("compassIcon").style.transform = `rotate(${angle}deg)`;
-// }
-
-
-// window.addEventListener("deviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation", e => {
-//   if (e.absolute || e.webkitCompassHeading !== undefined) {
-//     const heading = e.webkitCompassHeading || 360 - e.alpha;
-//     currentHeading = heading;
-//     rotateMap(currentHeading);
-//   }
-// });
 
 // 1. Orientation Events for Heading / Compass
 window.addEventListener("deviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation", handleOrientation, true);
-
-//window.addEventListener("deviceorientationabsolute", handleOrientation, true);
-//window.addEventListener("deviceorientation", handleOrientation, true);
 
 // 2. Toggle button for enabling/disabling map rotation
 document.getElementById("rotationToggle").addEventListener("click", toggleRotation);
@@ -161,17 +65,8 @@ document.addEventListener("click", function (e) {
   }
 });
 
-
-// 3. Visibility change: pause rotation when app tab is hidden
-// document.addEventListener("visibilitychange", () => {
-//   if (document.hidden) stopRotation();
-// });
-
 function handleOrientation(e) {
-  // if (!rotationEnabled) return;
-
-  // const alpha = typeof e.alpha === "number" ? e.alpha : (e.webkitCompassHeading || 0);
-  // const now = Date.now();
+  
   const alpha = event.alpha;
 
   if (!rotationEnabled || alpha == null) return;
@@ -241,48 +136,6 @@ function setTrackingButtonsEnabled(enabled) {
   if (pauseBtn) pauseBtn.disabled = !enabled;
   if (stopBtn) stopBtn.disabled = !enabled;
 }
-
-// let lastHeadingCoords = null;
-
-// function computeBearing(a, b) {
-//   const toRad = x => x * Math.PI / 180;
-//   const toDeg = x => x * 180 / Math.PI;
-//   const dLon = toRad(b.lng - a.lng);
-//   const lat1 = toRad(a.lat);
-//   const lat2 = toRad(b.lat);
-
-//   const y = Math.sin(dLon) * Math.cos(lat2);
-//   const x = Math.cos(lat1) * Math.sin(lat2) -
-//             Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-//   return (toDeg(Math.atan2(y, x)) + 360) % 360;
-// }
-
-// function rotateMapTo(bearing) {
-//   const mapEl = document.getElementById("map");
-//   mapEl.style.transform = `rotate(${-bearing}deg)`;
-
-//   document.querySelectorAll(".leaflet-marker-icon, .leaflet-popup").forEach(el => {
-//     el.style.transform = `rotate(${bearing}deg)`;
-//   });
-// }
-
-// function updateCompass(bearing) {
-//   const compass = document.getElementById("compass");
-//   if (compass) compass.style.transform = `rotate(${bearing}deg)`;
-// }
-
-// function simulateHeadingFromMovement(newCoords) {
-//   if (!lastHeadingCoords) {
-//     lastHeadingCoords = newCoords;
-//     return;
-//   }
-
-//   const bearing = computeBearing(lastHeadingCoords, newCoords);
-//   rotateMapTo(bearing);
-//   updateCompass(bearing);
-//   lastHeadingCoords = newCoords;
-// }
-
 
 const noteIcon = L.divIcon({
   className: 'custom-icon note-icon',
@@ -479,38 +332,6 @@ function haversineDistance(coord1, coord2) {
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
-// function rotateMap(deg) {
-//   if (!rotationEnabled) return;
-//   const mapEl = document.getElementById("map");
-//   mapEl.style.transformOrigin = "center center";
-//   mapEl.style.transition = "transform 0.3s ease";
-//   mapEl.style.transform = `rotate(${-deg}deg)`; // negative to match heading
-// }
-
-// function handleOrientation(event) {
-//   if (!rotationEnabled) return;
-
-//   const heading = event.alpha ?? 0;
-//   const rotation = 360 - heading;
-
-//   const container = document.getElementById("map");
-//   container.style.transform = `rotate(${rotation}deg) scale(1.50)`; // slight scale to fill edges
-//   container.style.transition = "transform 0.3s ease-out";
-
-//   lastHeading = heading;
-// }
-
-// function getBearing(start, end) {
-//   const dLon = (end.lng - start.lng) * Math.PI / 180;
-//   const lat1 = start.lat * Math.PI / 180;
-//   const lat2 = end.lat * Math.PI / 180;
-//   const y = Math.sin(dLon) * Math.cos(lat2);
-//   const x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
-//   const brng = Math.atan2(y, x) * 180 / Math.PI;
-//   return (brng + 360) % 360;
-// }
-
-
 // === ROUTE TRACKING ===
 
 function disableStartButton() {
@@ -519,104 +340,6 @@ function disableStartButton() {
     btn.disabled = true;
   }
 }
-
-// window.startTracking = function () {
-//   openAccessibilityForm();
-
-//   setTrackingButtonsEnabled(true);
-//   document.getElementById("startBtn").disabled = true;
-//   document.getElementById("resetBtn").disabled = true;
-//   document.getElementById("takePhotoBtn").disabled = false;
-
-
-//   isTracking = true;
-//   setControlButtonsEnabled(false);  // ⛔ disable unrelated controls
-
-
-//   startAutoBackup();
-
-//   if (navigator.geolocation) {
-//     watchId = navigator.geolocation.watchPosition(
-//       position => {
-//         const { latitude, longitude, accuracy } = position.coords;
-//         if (accuracy > 25) return;
-
-//         const latLng = { lat: latitude, lng: longitude };
-
-//         if (lastCoords) {
-//           const dist = haversineDistance(lastCoords, latLng);
-//           if (dist > 0.2) return; // skip GPS jumps
-//           totalDistance += dist;
-//         }
-
-//         lastCoords = latLng;
-//         path.push(latLng);
-//         marker.setLatLng(latLng);
-//         map.panTo(latLng);
-
-//         // Draw new polyline for the path
-//         if (path.length > 1) {
-//           const segment = [path[path.length - 2], path[path.length - 1]];
-//           L.polyline(segment, { color: 'green' }).addTo(map);
-//         }
-
-//         routeData.push({
-//           type: "location",
-//           timestamp: Date.now(),
-//           coords: latLng
-//         });
-
-//         document.getElementById("distance").textContent = totalDistance.toFixed(2) + " km";
-//         //document.getElementById("liveDistance").textContent = totalDistance.toFixed(2) + " km";
-//       },
-//       err => console.error("GPS error:", err),
-//       { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-//     );
-
-//     //startTimer();
-//     startTime = Date.now() - elapsedTime;
-// clearInterval(timerInterval);
-// updateTimerDisplay();
-// timerInterval = setInterval(updateTimerDisplay, 1000);
-
-//   } else {
-//     alert("Geolocation not supported");
-//   }
-// };
-
-// window.startTracking = function () {
-//   openAccessibilityForm();
-
-//   setTrackingButtonsEnabled(true);
-//   document.getElementById("startBtn").disabled = true;
-//   document.getElementById("resetBtn").disabled = true;
-//   document.getElementById("takePhotoBtn").disabled = false;
-
-//   isTracking = true;
-//   setControlButtonsEnabled(false);
-//   startAutoBackup();
-
-//   if (!navigator.geolocation) {
-//     alert("Geolocation not supported");
-//     return;
-//   }
-
-//   // Tracking logic
-//   watchId = navigator.geolocation.watchPosition(
-//     positionHandler,
-//     err => console.error("GPS error:", err),
-//     {
-//       enableHighAccuracy: true,
-//       maximumAge: 0,
-//       timeout: 5000
-//     }
-//   );
-
-//   startTime = Date.now() - elapsedTime;
-//   clearInterval(timerInterval);
-//   updateTimerDisplay();
-//   timerInterval = setInterval(updateTimerDisplay, 1000);
-// };
 
 window.startTracking = function () {
   openAccessibilityForm();
@@ -689,22 +412,6 @@ function positionHandler(position) {
   const latLng = { lat: latitude, lng: longitude };
 
   marker.setLatLng(latLng);
-
-//   if (followHeading && typeof heading === "number" && !isNaN(heading)) {
-//     map.setView(latLng, map.getZoom(), {
-//       animate: true,
-//       pan: {
-//         duration: 0.5
-//       }
-//     });
-
-//     map.setBearing?.(heading); // Optional if using a plugin
-//   } else {
-//     if (!rotationEnabled) {
-//    map.panTo(latLng, { animate: true });
-// }
-   
-//   }
 
   if (lastCoords) {
     const dist = haversineDistance(lastCoords, latLng);
@@ -780,18 +487,10 @@ function resetApp() {
   // Reset display
   document.getElementById("distance").textContent = "0.00 km";
   document.getElementById("timer").textContent = "00:00:00";
-  // document.getElementById("liveDistance").textContent = "0.00 km";
-  // document.getElementById("liveTimer").textContent = "00:00:00";
 
   // Stop autosave and clear backup
   stopAutoBackup();
   localStorage.removeItem("route_backup");
-
-  // Re-enable Start button, disable Pause/Stop
-  // document.getElementById("startBtn").disabled = false;
-  // document.getElementById("pauseBtn").disabled = true;
-  // document.getElementById("stopBtn").disabled = true;
-  // document.getElementById("resetBtn").disabled = false;
 
   // Clear map layers if needed
   if (map) {
@@ -842,56 +541,7 @@ window.confirmAndResetApp = function () {
   // }
   const confirmReset = confirm("⚠️ Are you sure you want to reset?");
   if (confirmReset) resetApp();
-  //resetApp();
 };
-
-// function resumeTracking() {
-//   // Restart timer interval even if timer was running silently
-//   clearInterval(timerInterval);
-//   startTime = Date.now() - elapsedTime;
-//   timerInterval = setInterval(updateTimerDisplay, 1000);
-
-// //   if (rotationEnabled && orientationListenerActive) {
-// //   window.addEventListener("deviceorientationabsolute", handleOrientation);
-// //   window.addEventListener("deviceorientation", handleOrientation);
-// //   orientationListenerActive = true;
-// // } else {
-// //   mapWrapper.style.transform = `none`;
-// // }
-
-//   // Resume location tracking
-//   if (navigator.geolocation) {
-//     watchId = navigator.geolocation.watchPosition(
-//       position => {
-//         const { latitude, longitude, accuracy } = position.coords;
-//         if (accuracy > 25) return;
-
-//         const latLng = { lat: latitude, lng: longitude };
-//         if (lastCoords) {
-//           const dist = haversineDistance(lastCoords, latLng);
-//           if (dist > 0.2) return;
-//           totalDistance += dist;
-//         }
-
-//         lastCoords = latLng;
-//         path.push(latLng);
-//         marker.setLatLng(latLng);
-//         if (!rotationEnabled) {
-//   map.panTo(latLng, { animate: true });
-// }
-//         L.polyline(path, { color: 'green' }).addTo(map);
-
-//         routeData.push({ type: "location", timestamp: Date.now(), coords: latLng });
-//         document.getElementById("distance").textContent = totalDistance.toFixed(2) + " km";
-//         //document.getElementById("liveDistance").textContent = totalDistance.toFixed(2) + " km";
-//       },
-//       err => console.error("GPS error:", err),
-//       { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-//     );
-//   }
-
-//   startAutoBackup();
-// }
 
 window.resumeTracking = function () {
   if (!isPaused) return;
@@ -1338,55 +988,7 @@ window.loadSession = function (index) {
     drawSavedRoutePath();
     showRouteDataOnMap();
     setTrackingButtonsEnabled(false);
-
-    //disableStartButton();
   });
-
-  //document.getElementById("exportSummaryBtn").disabled = false;
-};
-
-// === LOAD SESSION + IndexDB===
-// window.loadSession = async function (index) {
-//   const sessions = JSON.parse(localStorage.getItem("sessions") || "[]");
-//   const session = sessions[index];
-
-//   if (!session || !session.data || session.data.length === 0) {
-//     alert("❌ This session has no data to export.");
-//     return;
-//   }
-
-//   routeData = [];
-//   for (const entry of session.data) {
-//     if (entry.mediaId) {
-//       try {
-//         const base64 = await getMediaFromIndexedDB(entry.mediaId);
-//         routeData.push({ ...entry, content: base64 });
-//       } catch {
-//         routeData.push({ ...entry, content: null });
-//       }
-//     } else {
-//       routeData.push(entry);
-//     }
-//   }
-
-//   totalDistance = parseFloat(session.distance);
-//   elapsedTime = 0;
-//   lastCoords = null;
-
-//   path = routeData.filter(e => e.type === "location").map(e => e.coords);
-
-//   document.getElementById("timer").textContent = session.time;
-//   document.getElementById("distance").textContent = totalDistance.toFixed(2) + " km";
-
-//   initMap(() => {
-//     drawSavedRoutePath();
-//     showRouteDataOnMap();
-//     setTrackingButtonsEnabled(false);
-//   });
-
-//   //document.getElementById("exportSummaryBtn").disabled = false;
-// };
-
 
 function drawSavedRoutePath() {
   if (!map || path.length === 0) return;
@@ -1423,8 +1025,6 @@ function loadMostRecentSession(callback) {
   // Update UI
   document.getElementById("timer").textContent = mostRecent.time;
   document.getElementById("distance").textContent = totalDistance.toFixed(2) + " km";
-  //document.getElementById("liveTimer").textContent = mostRecent.time;
-  //document.getElementById("liveDistance").textContent = totalDistance.toFixed(2) + " km";
 
   if (typeof initMap === "function") {
     initMap(() => {
@@ -1463,18 +1063,6 @@ window.exportData = function () {
 };
 
 // === EXPORT GPX ===
-// window.exportData = function () {
-//   const fileName = `route-${new Date().toISOString()}.json`;
-//   const blob = new Blob([JSON.stringify(routeData, null, 2)], { type: "application/json" });
-
-//   const link = document.createElement("a");
-//   link.href = URL.createObjectURL(blob);
-//   link.download = fileName;
-//   document.body.appendChild(link);
-//   link.click();
-//   document.body.removeChild(link);
-// };
-
 window.exportGPX = function () {
   let gpx = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="NatureTracker" xmlns="http://www.topografix.com/GPX/1/1">
@@ -1846,231 +1434,6 @@ async function generateElevationChartCanvas(route) {
 
   return canvas;
 }
-
-// For imported route test
-// async function exportRouteSummary() {
-//   console.log("📦 Attempting route export...");
-
-//   if (!routeData || !Array.isArray(routeData) || routeData.length === 0) {
-//     alert("⚠️ No route data available to export.");
-//     return;
-//   }
-
-//   const mostRecent = JSON.parse(localStorage.getItem("sessions") || "[]").slice(-1)[0];
-//   const defaultName = mostRecent?.name || "My Route";
-//   const name = prompt("Enter a title for this route summary:", defaultName);
-//   if (!name) return;
-
-//   const zip = new JSZip();
-//   const notesFolder = zip.folder("notes");
-//   const imagesFolder = zip.folder("images");
-//   const audioFolder = zip.folder("audio");
-//   const mediaForArchive = {};
-
-//   let markersJS = "", pathCoords = [], enriched = [], photoCounter = 1, noteCounter = 1, audioCounter = 1;
-
-//   for (const entry of routeData) {
-//     if (entry.type === "location") {
-//       pathCoords.push([entry.coords.lat, entry.coords.lng]);
-//       enriched.push({ ...entry }); // clone for later enrichment
-//     } else if (entry.type === "text") {
-//       notesFolder.file(`note${noteCounter}.txt`, entry.content);
-//       markersJS += `
-// L.marker([${entry.coords.lat}, ${entry.coords.lng}], {
-//   icon: L.divIcon({ className: 'custom-icon', html: '📝' })
-// }).addTo(map)
-//   .bindPopup("<b>Note ${noteCounter}</b><br><pre>${entry.content}</pre>");
-// `;
-//       noteCounter++;
-//     } else if (entry.type === "photo") {
-//       const base64 = entry.content.split(",")[1];
-//       imagesFolder.file(`photo${photoCounter}.jpg`, base64, { base64: true });
-//       mediaForArchive[`photo${photoCounter}.jpg`] = base64;
-//       markersJS += `
-// L.marker([${entry.coords.lat}, ${entry.coords.lng}], {
-//   icon: L.divIcon({ className: 'custom-icon', html: '📸' })
-// }).addTo(map)
-//   .bindPopup("<b>Photo ${photoCounter}</b><br><img src='images/photo${photoCounter}.jpg' style='width:100%' onclick='openFullscreen(this)'>");
-// `;
-//       photoCounter++;
-//     } else if (entry.type === "audio") {
-//       const base64 = entry.content.split(",")[1];
-//       audioFolder.file(`audio${audioCounter}.webm`, base64, { base64: true });
-//       markersJS += `
-// L.marker([${entry.coords.lat}, ${entry.coords.lng}])
-//   .addTo(map)
-//   .bindPopup("<b>Audio ${audioCounter}</b><br><audio controls src='audio/audio${audioCounter}.webm'></audio>");
-// `;
-//       audioCounter++;
-//     }
-//   }
-
-//   // Enrich with elevation
-//   for (const entry of enriched) {
-//     if (entry.type === "location" && entry.elevation == null) {
-//       entry.elevation = await getElevation(entry.coords.lat, entry.coords.lng);
-//     }
-//   }
-
-//   // Accessibility computation
-//   let accessibleLength = 0;
-//   for (let i = 1; i < enriched.length; i++) {
-//     const a = enriched[i - 1], b = enriched[i];
-//     if (a.elevation != null && b.elevation != null) {
-//       const dist = haversineDistance(a.coords, b.coords);
-//       const elev = b.elevation - a.elevation;
-//       const grade = (elev / (dist * 1000)) * 100;
-//       if (Math.abs(grade) <= 6) accessibleLength += dist * 1000;
-//     }
-//   }
-
-//   // Elevation chart PNG
-//   const elevationCanvas = await generateElevationChartCanvas(enriched);
-//   const base64Chart = elevationCanvas.toDataURL("image/png");
-//   const elevationBlob = await new Promise(res => elevationCanvas.toBlob(res, "image/png"));
-//   zip.file("elevation.png", elevationBlob);
-//   mediaForArchive["elevation.png"] = base64Chart.split(",")[1];
-
-//   // Accessibility data
-//   const accessibilityJSON = JSON.stringify({
-//     ...routeData.find(e => e.type === "accessibility")?.content || {},
-//     accessibleLength: accessibleLength.toFixed(0)
-//   });
-
-//   const boundsJSON = JSON.stringify(pathCoords);
-
-//   const htmlContent = `
-// <!DOCTYPE html>
-// <html>
-// <head>
-//   <meta charset="UTF-8">
-//   <title>${name}</title>
-//   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-//   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-//   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-//   <style>
-//     body { font-family: Arial; margin: 0; }
-//     #map { height: 50vh; }
-//     #modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); display:none; align-items:center; justify-content:center; }
-//     #modal img { max-width: 90%; max-height: 90%; }
-//   </style>
-// </head>
-// <body>
-// <h2>${name}</h2>
-// <div>
-//   <p><b>Distance:</b> ${totalDistance.toFixed(2)} km</p>
-//   <p><b>Photos:</b> ${photoCounter - 1}</p>
-//   <p><b>Notes:</b> ${noteCounter - 1}</p>
-//   <p><b>Audios:</b> ${audioCounter - 1}</p>
-//   <p><b>Accessible Length:</b> ${accessibleLength.toFixed(0)} m</p>
-// </div>
-// <div id="description">
-//     <h4>General Description:</h4>
-//     <textarea placeholder="Add notes or observations about the route here..."></textarea>
-//   </div>
-//   <div id="accessibilityDetailsContainer"></div>
-// <canvas id="chart" width="800" height="200"></canvas>
-// <!-- <br><button onclick="document.getElementById('modal').style.display='flex'">🔍 View Chart Fullscreen</button>
-//  <div id="modal" onclick="this.style.display='none'"><img src="elevation.png"></div> -->
-
-// <div style="margin-top: 10px;">
-//   <b>Gradient Legend:</b><br>
-//   <span style="color:green">🟩 ≤ 6% (Mild)</span>&nbsp;&nbsp;
-//   <span style="color:orange">🟧 6–10% (Moderate)</span>&nbsp;&nbsp;
-//   <span style="color:red">🟥 > 10% (Steep)</span>
-// </div>
-
-// <div id="map"></div>
-// <script>
-//   const map = L.map('map');
-//   const bounds = L.latLngBounds(${boundsJSON});
-//   map.fitBounds(bounds);
-//   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-//   const route = ${JSON.stringify(enriched)};
-//   const haversine = (a, b) => {
-//     const toRad = x => x * Math.PI / 180, R = 6371;
-//     const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
-//     const lat1 = toRad(a.lat), lat2 = toRad(b.lat);
-//     const a_ = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
-//     return R * 2 * Math.atan2(Math.sqrt(a_), Math.sqrt(1-a_));
-//   };
-
-//   for (let i = 1; i < route.length; i++) {
-//     const a = route[i - 1], b = route[i];
-//     const dist = haversine(a.coords, b.coords);
-//     const elev = b.elevation - a.elevation;
-//     const grade = (elev / (dist * 1000)) * 100;
-//     const color = Math.abs(grade) > 10 ? 'red' : Math.abs(grade) > 6 ? 'orange' : 'green';
-//     L.polyline([a.coords, b.coords], { color }).addTo(map);
-//   }
-
-//   ${markersJS}
-
-//   // Accessibility summary rendering
-// // (function(){
-// //   const data = ${accessibilityJSON};
-// //   if (!data) return;
-// //   const html = \`
-// //     <div id="accessibilityDetails">
-// //       <h3>♿ Accessibility Details</h3>
-// //       <ul>
-// //         <li><b>Disabled Parking:</b> \${data.disabledParkingCount}</li>
-// //         <li><b>Path Type:</b> \${data.pathType}</li>
-// //         <li><b>Accessible Length:</b> \${data.accessibleLength} m</li>
-// //         <li><b>Route Type:</b> \${data.routeType}</li>
-// //         <li><b>Slope:</b> \${data.slope}</li>
-// //         <li><b>Points of Interest:</b> \${data.pointsOfInterest}</li>
-// //         <li><b>Lookouts:</b> \${data.lookouts ? "Yes" : "No"}</li>
-// //         <li><b>Picnic Spots:</b> \${data.picnicSpots ? "Yes" : "No"}</li>
-// //         <li><b>Accessible Toilets:</b> \${data.accessibleToilets ? "Yes" : "No"}</li>
-// //         <li><b>Benches:</b> \${data.benches ? "Yes" : "No"}</li>
-// //         <li><b>Shade:</b> \${data.shade}</li>
-// //       </ul>
-// //     </div>\`;
-// //   document.getElementById("accessibilityDetailsContainer").innerHTML = html;
-// // })();
-
-//   new Chart(document.getElementById("chart"), {
-//     type: "line",
-//     data: {
-//       labels: route.map((c, i) => i),
-//       datasets: [{
-//         label: "Elevation (m)",
-//         data: route.map(c => c.elevation),
-//         borderColor: "green",
-//         tension: 0.3,
-//         fill: true
-//       }]
-//     }
-//   });
-
-//   // function openFullscreen(img) {
-//   //   const modal = document.getElementById("modal");
-//   //   modal.querySelector("img").src = img.src;
-//   //   modal.style.display = 'flex';
-//   // }
-// </script>
-// </body>
-// </html>
-// `;
-
-//   // Save full HTML and media
-//   zip.file("index.html", htmlContent);
-//   SummaryArchive.saveToArchive(name, htmlContent, mediaForArchive);
-
-//   try {
-//     const blob = await zip.generateAsync({ type: "blob" });
-//     const url = URL.createObjectURL(blob);
-//     const a = document.createElement("a");
-//     a.href = url;
-//     a.download = `route-summary-${Date.now()}.zip`;
-//     a.click();
-//     console.log("✅ Export complete.");
-//   } catch (e) {
-//     console.error("❌ ZIP generation failed:", e);
-//   }
-// }
 
 //For normal app route tracking
 async function exportRouteSummary() {
@@ -3229,13 +2592,6 @@ function showPhotoCleanupDialog() {
       cursor: pointer;
     `;
 
-    // deleteBtn.onclick = () => {
-    //   photos.splice(index, 1);
-    //   localStorage.setItem("photos", JSON.stringify(photos));
-    //   imgWrapper.remove();
-    //   renderLocalStorageStatus();
-    // };
-
     deleteBtn.onclick = () => {
       // Remove photo from routeData (sessions)
       const sessions = JSON.parse(localStorage.getItem("sessions") || "[]");
@@ -3343,15 +2699,6 @@ document.getElementById("importFile").addEventListener("change", async (e) => {
   }
 });
 
-
-//   } else if (ext === "gpx") {
-//     alert("⚠️ GPX import not implemented yet.");
-//     // Optional: we can use a library to parse GPX if you’d like
-//   } else {
-//     alert("❌ Unsupported file type.");
-//   }
-// });
-
 async function enrichRouteWithElevation(data) {
   const enriched = [];
   for (const entry of data) {
@@ -3367,65 +2714,7 @@ async function enrichRouteWithElevation(data) {
   }
   return enriched;
 }
-
-// async function getElevation(lat, lng) {
-//   const url = `https://api.opentopodata.org/v1/aster30m?locations=${lat},${lng}`;
-//   const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-
-//   try {
-//     const res = await fetch(proxy);
-//     if (!res.ok) throw new Error(`Proxy error: ${res.status}`);
-
-//     const json = await res.json();
-//     const data = JSON.parse(json.contents); // the real response is inside "contents"
-//     return data.results?.[0]?.elevation ?? null;
-//   } catch (err) {
-//     console.warn("⚠️ Failed to fetch elevation:", err);
-//     return null;
-//   }
-// }
-
-// async function getElevation(lat, lng) {
-//   const url = `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lng}`;
-
-//   try {
-//     const res = await fetch(url);
-//     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-//     const data = await res.json();
-//     return data.elevation ?? null;
-//   } catch (err) {
-//     console.warn("⚠️ Failed to fetch elevation:", err);
-//     return null;
-//   }
-// }
-
-// async function getElevation(lat, lng) {
-//   const url = `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lng}`;
-
-//   try {
-//     console.log(`🌍 Fetching elevation for [${lat}, ${lng}]`);
-
-//     const res = await fetch(url);
-//     if (!res.ok) {
-//       throw new Error(`HTTP ${res.status} - ${res.statusText}`);
-//     }
-
-//     const data = await res.json();
-
-//     const elevation = data.elevation;
-//     if (typeof elevation === 'number') {
-//       console.log(`✅ Elevation fetched: ${elevation} m`);
-//       return elevation;
-//     } else {
-//       console.warn(`⚠️ Invalid elevation value returned for [${lat}, ${lng}]`, data);
-//       return null;
-//     }
-
-//   } catch (err) {
-//     console.error(`❌ Failed to fetch elevation for [${lat}, ${lng}]:`, err);
-//     return null;
-//   }
-// }
+  
 async function getElevation(lat, lng) {
   const url = `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lng}`;
 
@@ -3457,8 +2746,6 @@ async function getElevation(lat, lng) {
     return null;
   }
 }
-
-
 
 async function generateElevationChartBase64(coordsWithElevation) {
   const canvas = document.createElement('canvas');
