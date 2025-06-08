@@ -140,6 +140,18 @@ function setControlButtonsEnabled(enabled) {
 //   }
 // });
 
+// 1. Orientation Events for Heading / Compass
+window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+window.addEventListener("deviceorientation", handleOrientation, true);
+
+// 2. Toggle button for enabling/disabling map rotation
+document.getElementById("rotationToggle").addEventListener("click", toggleRotation);
+
+// 3. Visibility change: pause rotation when app tab is hidden
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopRotation();
+});
+
 function handleOrientation(e) {
   if (!rotationEnabled) return;
 
@@ -706,7 +718,11 @@ function positionHandler(position) {
 
 
 window.stopTracking = function () {
-  
+  // 5. Cleanup (if needed for pause/stop tracking)
+function stopRotation() {
+  window.removeEventListener("deviceorientation", handleOrientation, true);
+  orientationListenerActive = false;
+}
   if (watchId) navigator.geolocation.clearWatch(watchId);
   stopTimer();
   stopAutoBackup();
@@ -918,6 +934,11 @@ Total Time: ${document.getElementById("timer").textContent}`);
 // === TRACKING ===
 window.togglePause = function () {
   isPaused = !isPaused;
+  // 5. Cleanup (if needed for pause/stop tracking)
+  function stopRotation() {
+  window.removeEventListener("deviceorientation", handleOrientation, true);
+  orientationListenerActive = false;
+}
   //document.getElementById("pauseButtonLabel").textContent = isPaused ? "Resume" : "Pause";
   if (!isPaused) {
     startTime = Date.now() - elapsedTime;
