@@ -143,11 +143,24 @@ function setControlButtonsEnabled(enabled) {
 // });
 
 // 1. Orientation Events for Heading / Compass
-window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+window.addEventListener("deviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation", handleOrientation, true);
+
+//window.addEventListener("deviceorientationabsolute", handleOrientation, true);
 window.addEventListener("deviceorientation", handleOrientation, true);
 
 // 2. Toggle button for enabling/disabling map rotation
 document.getElementById("rotationToggle").addEventListener("click", toggleRotation);
+
+window.addEventListener("resize", () => {
+  map.invalidateSize();
+});
+
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(".bottom-panel") && !e.target.closest(".bottom-nav")) {
+    document.querySelectorAll(".bottom-panel").forEach(p => p.classList.remove("open"));
+  }
+});
+
 
 // 3. Visibility change: pause rotation when app tab is hidden
 // document.addEventListener("visibilitychange", () => {
@@ -155,10 +168,13 @@ document.getElementById("rotationToggle").addEventListener("click", toggleRotati
 // });
 
 function handleOrientation(e) {
-  if (!rotationEnabled) return;
+  // if (!rotationEnabled) return;
 
-  const alpha = typeof e.alpha === "number" ? e.alpha : (e.webkitCompassHeading || 0);
-  const now = Date.now();
+  // const alpha = typeof e.alpha === "number" ? e.alpha : (e.webkitCompassHeading || 0);
+  // const now = Date.now();
+  const alpha = event.alpha;
+
+  if (!rotationEnabled || alpha == null) return;
 
   if (now - lastUpdate < 100) return;
   lastUpdate = now;
@@ -171,9 +187,15 @@ function handleOrientation(e) {
   const wrapper = document.getElementById("mapWrapper");
   if (!mapEl || !wrapper) return;
 
-  const scale = 2.0;
-  mapEl.style.transform = `rotate(${-rotateDeg}deg) scale(${scale})`;
-  wrapper.style.transform = `rotate(${rotateDeg}deg) scale(${scale})`;
+  const heading = 360 - alpha;  // north-aligned
+  const smoothed = smoothHeading(heading, lastHeading);
+
+  lastHeading = smoothed;
+  rotateDeg = smoothed;
+
+  const transform = `rotate(${rotateDeg}deg) scale(2)`; // adjust scale if needed
+  document.getElementById("mapWrapper").style.transform = transform;
+  document.getElementById("map").style.transform = transform;
 
   // Update compass if present
   const compass = document.getElementById("compassArrow");
