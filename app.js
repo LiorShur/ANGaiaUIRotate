@@ -70,27 +70,43 @@ document.addEventListener("click", function (e) {
   }
 });
 
-function handleOrientation(event) {
-  const now = Date.now();
-  if (now - lastOrientationUpdate < 200) return; // Throttle
+// function handleOrientation(event) {
+//   const now = Date.now();
+//   if (now - lastOrientationUpdate < 200) return; // Throttle
 
-  let alpha = event.alpha;
-  if (typeof alpha !== "number") return;
+//   let alpha = event.alpha;
+//   if (typeof alpha !== "number") return;
 
-  lastOrientationUpdate = now;
-  const smoothed = smoothHeading(alpha, rotateDeg);
-  rotateDeg = smoothed;
-  currentRotation = smoothed;
+//   lastOrientationUpdate = now;
+//   const smoothed = smoothHeading(alpha, rotateDeg);
+//   rotateDeg = smoothed;
+//   currentRotation = smoothed;
 
-  const mapEl = document.getElementById("map");
-  const wrapper = document.getElementById("mapWrapper");
+//   const mapEl = document.getElementById("map");
+//   const wrapper = document.getElementById("mapWrapper");
 
-  if (rotationEnabled && mapEl && wrapper) {
-    wrapper.style.transform = `rotate(${-rotateDeg}deg) scale(2)`;
-    mapEl.style.transform = `rotate(${rotateDeg}deg)`;
+//   if (rotationEnabled && mapEl && wrapper) {
+//     wrapper.style.transform = `rotate(${-rotateDeg}deg) scale(2)`;
+//     mapEl.style.transform = `rotate(${rotateDeg}deg)`;
+//   }
+
+//   updateCompass(rotateDeg); // Optional if you have a compass UI
+// }
+
+window.addEventListener("deviceorientation", e => {
+  if (rotationEnabled) {
+    currentRotation = e.alpha;
   }
+}, true);
 
-  updateCompass(rotateDeg); // Optional if you have a compass UI
+function handleOrientation(e) {
+  const alpha = typeof e.alpha === 'number' ? e.alpha : 0;
+  rotateDeg = smoothHeading(alpha, rotateDeg);
+  mapWrapper.style.transform = `rotate(${-rotateDeg}deg) scale(1.8)`;
+  mapWrapper.style.transformOrigin = 'center center';
+
+  const compass = document.getElementById("compass");
+  if (compass) compass.style.transform = `rotate(${alpha}deg)`;
 }
 
 function smoothHeading(alpha, previous) {
@@ -98,38 +114,54 @@ function smoothHeading(alpha, previous) {
   return previous + delta * 0.2; // Adjust smoothing factor as needed
 }
 
+// function toggleRotation() {
+//   rotationEnabled = !rotationEnabled;
+//   const mapEl = document.getElementById("map");
+//   const wrapper = document.getElementById("mapWrapper");
+//   const compass = document.getElementById("compass");
+
+//   if (!rotationEnabled) {
+//     // Disable rotation
+//     if (wrapper && mapEl) {
+//       wrapper.style.transform = "none";
+//       mapEl.style.transform = "none";
+//     }
+//     if (compass) compass.style.transform = "none";
+
+//     if (orientationListenerActive) {
+//       window.removeEventListener("deviceorientation", handleOrientation);
+//       orientationListenerActive = false;
+//     }
+
+//     console.log("🧭 Rotation disabled.");
+//   } else {
+//     // Enable rotation
+//     if (!orientationListenerActive) {
+//       window.addEventListener("deviceorientation", handleOrientation);
+//       orientationListenerActive = true;
+//     }
+
+//     if (typeof currentRotation !== "undefined") {
+//       handleOrientation({ alpha: currentRotation });
+//     }
+
+//     console.log("🧭 Rotation enabled.");
+//   }
+// }
 function toggleRotation() {
   rotationEnabled = !rotationEnabled;
-  const mapEl = document.getElementById("map");
-  const wrapper = document.getElementById("mapWrapper");
-  const compass = document.getElementById("compass");
 
-  if (!rotationEnabled) {
-    // Disable rotation
-    if (wrapper && mapEl) {
-      wrapper.style.transform = "none";
-      mapEl.style.transform = "none";
-    }
-    if (compass) compass.style.transform = "none";
-
-    if (orientationListenerActive) {
-      window.removeEventListener("deviceorientation", handleOrientation);
-      orientationListenerActive = false;
-    }
-
-    console.log("🧭 Rotation disabled.");
+  if (rotationEnabled && !orientationListenerActive) {
+    window.addEventListener('deviceorientation', handleOrientation);
+    orientationListenerActive = true;
+    mapWrapper.style.transition = 'transform 0.3s ease';
+    console.log("🧭 Rotation enabled");
   } else {
-    // Enable rotation
-    if (!orientationListenerActive) {
-      window.addEventListener("deviceorientation", handleOrientation);
-      orientationListenerActive = true;
-    }
-
-    if (typeof currentRotation !== "undefined") {
-      handleOrientation({ alpha: currentRotation });
-    }
-
-    console.log("🧭 Rotation enabled.");
+    window.removeEventListener('deviceorientation', handleOrientation);
+    orientationListenerActive = false;
+    mapWrapper.style.transform = 'rotate(0deg) scale(1)';
+    mapWrapper.style.transition = 'transform 0.3s ease';
+    console.log("🧭 Rotation disabled");
   }
 }
 
