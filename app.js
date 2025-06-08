@@ -22,6 +22,7 @@ let lastUpdate = 0;
 let lastRotationUpdate = 0;
 let currentRotation = 0;
 let lastOrientationUpdate = 0;
+let mapWrapper = document.getElementById('mapWrapper'); // wrapper div for #map
 
 function setControlButtonsEnabled(enabled) {
   const idsToDisable = [
