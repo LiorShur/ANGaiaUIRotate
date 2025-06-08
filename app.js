@@ -140,6 +140,62 @@ function setControlButtonsEnabled(enabled) {
 //   }
 // });
 
+function handleOrientation(e) {
+  if (!rotationEnabled) return;
+
+  const alpha = typeof e.alpha === "number" ? e.alpha : (e.webkitCompassHeading || 0);
+  const now = Date.now();
+
+  if (now - lastUpdate < 100) return;
+  lastUpdate = now;
+
+  // Smooth interpolation
+  rotateDeg = smoothHeading(alpha, rotateDeg);
+  lastHeading = rotateDeg;
+
+  const mapEl = document.getElementById("map");
+  const wrapper = document.getElementById("mapWrapper");
+  if (!mapEl || !wrapper) return;
+
+  const scale = 2.0;
+  mapEl.style.transform = `rotate(${-rotateDeg}deg) scale(${scale})`;
+  wrapper.style.transform = `rotate(${rotateDeg}deg)`;
+
+  // Update compass if present
+  const compass = document.getElementById("compassArrow");
+  if (compass) {
+    compass.style.transform = `rotate(${rotateDeg}deg)`;
+  }
+}
+
+function smoothHeading(target, current, smoothing = 0.1) {
+  let delta = target - current;
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+  return current + delta * smoothing;
+}
+function toggleRotation() {
+  rotationEnabled = !rotationEnabled;
+
+  if (rotationEnabled && !orientationListenerActive) {
+    window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+    orientationListenerActive = true;
+
+    // Trigger initial heading
+    if (lastHeading != null) {
+      handleOrientation({ alpha: lastHeading });
+    }
+  } else if (!rotationEnabled && orientationListenerActive) {
+    window.removeEventListener("deviceorientationabsolute", handleOrientation, true);
+    orientationListenerActive = false;
+
+    // Reset transforms
+    document.getElementById("map").style.transform = "";
+    document.getElementById("mapWrapper").style.transform = "";
+  }
+}
+
+
 function setTrackingButtonsEnabled(enabled) {
   const startBtn = document.getElementById("startBtn");
   const pauseBtn = document.getElementById("pauseBtn");
@@ -538,14 +594,6 @@ window.startTracking = function () {
   setControlButtonsEnabled(false);
   startAutoBackup();
 
-//   if (rotationEnabled && orientationListenerActive) {
-//   window.addEventListener("deviceorientationabsolute", handleOrientation);
-//   window.addEventListener("deviceorientation", handleOrientation);
-//   orientationListenerActive = true;
-// } else {
-//   mapWrapper.style.transform = `none`;
-// }
-
   if (navigator.geolocation) {
     watchId = navigator.geolocation.watchPosition(
       position => {
@@ -556,23 +604,15 @@ window.startTracking = function () {
 
         if (lastCoords) {
           const dist = haversineDistance(lastCoords, latLng);
-          if (dist > 1) return;     // GPS jump
-          if (dist < 0.005) return; // Jitter
+          if (dist > 1 || dist < 0.005) return;
           totalDistance += dist;
         }
 
-        // if (rotationEnabled && !("ondeviceorientationabsolute" in window || "ondeviceorientation" in window)) {
-        //     const simulatedBearing = getBearing(lastCoords, latLng);
-        //     rotateMap(simulatedBearing);
-        //   }
-
         lastCoords = latLng;
         path.push(latLng);
+
         marker.setLatLng(latLng);
-        // map.panTo(latLng, { animate: true });
-        if (!rotationEnabled) {
-  map.panTo(latLng, { animate: true });
-}
+        map.panTo(latLng, { animate: true });
 
         if (path.length > 1) {
           const segment = [path[path.length - 2], path[path.length - 1]];
@@ -586,9 +626,6 @@ window.startTracking = function () {
         });
 
         document.getElementById("distance").textContent = totalDistance.toFixed(2) + " km";
-
-        // Simulate heading
-        // simulateHeadingFromMovement(latLng);
       },
       err => console.error("GPS error:", err),
       { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
@@ -599,32 +636,14 @@ window.startTracking = function () {
     updateTimerDisplay();
     timerInterval = setInterval(updateTimerDisplay, 1000);
 
+    if (rotationEnabled) {
+      handleOrientation({ alpha: lastHeading ?? 0 });
+    }
   } else {
     alert("Geolocation not supported");
   }
-
-  // Listen for real heading if supported
-//   if (window.DeviceOrientationEvent) {
-//     window.addEventListener("deviceorientationabsolute", e => {
-//       if (e.absolute && e.alpha != null) {
-//         const heading = 360 - e.alpha;
-//         rotateMapTo(heading);
-//         updateCompass(heading);
-//       }
-//     }, true);
-//   }
-//   if (rotationEnabled) {
-//   handleOrientation({ alpha: lastHeading ?? 0 });
-// }
-
 };
 
-// let followHeading = false;
-
-// document.getElementById("compassToggle").addEventListener("click", () => {
-//   followHeading = !followHeading;
-//   document.getElementById("compassToggle").textContent = followHeading ? "🧭⇨" : "🧭";
-// });
 
 // Extracted position handler
 function positionHandler(position) {
@@ -786,53 +805,109 @@ window.confirmAndResetApp = function () {
   //resetApp();
 };
 
-function resumeTracking() {
-  // Restart timer interval even if timer was running silently
-  clearInterval(timerInterval);
-  startTime = Date.now() - elapsedTime;
-  timerInterval = setInterval(updateTimerDisplay, 1000);
+// function resumeTracking() {
+//   // Restart timer interval even if timer was running silently
+//   clearInterval(timerInterval);
+//   startTime = Date.now() - elapsedTime;
+//   timerInterval = setInterval(updateTimerDisplay, 1000);
 
-//   if (rotationEnabled && orientationListenerActive) {
-//   window.addEventListener("deviceorientationabsolute", handleOrientation);
-//   window.addEventListener("deviceorientation", handleOrientation);
-//   orientationListenerActive = true;
-// } else {
-//   mapWrapper.style.transform = `none`;
+// //   if (rotationEnabled && orientationListenerActive) {
+// //   window.addEventListener("deviceorientationabsolute", handleOrientation);
+// //   window.addEventListener("deviceorientation", handleOrientation);
+// //   orientationListenerActive = true;
+// // } else {
+// //   mapWrapper.style.transform = `none`;
+// // }
+
+//   // Resume location tracking
+//   if (navigator.geolocation) {
+//     watchId = navigator.geolocation.watchPosition(
+//       position => {
+//         const { latitude, longitude, accuracy } = position.coords;
+//         if (accuracy > 25) return;
+
+//         const latLng = { lat: latitude, lng: longitude };
+//         if (lastCoords) {
+//           const dist = haversineDistance(lastCoords, latLng);
+//           if (dist > 0.2) return;
+//           totalDistance += dist;
+//         }
+
+//         lastCoords = latLng;
+//         path.push(latLng);
+//         marker.setLatLng(latLng);
+//         if (!rotationEnabled) {
+//   map.panTo(latLng, { animate: true });
+// }
+//         L.polyline(path, { color: 'green' }).addTo(map);
+
+//         routeData.push({ type: "location", timestamp: Date.now(), coords: latLng });
+//         document.getElementById("distance").textContent = totalDistance.toFixed(2) + " km";
+//         //document.getElementById("liveDistance").textContent = totalDistance.toFixed(2) + " km";
+//       },
+//       err => console.error("GPS error:", err),
+//       { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+//     );
+//   }
+
+//   startAutoBackup();
 // }
 
-  // Resume location tracking
+window.resumeTracking = function () {
+  if (!isPaused) return;
+
+  isPaused = false;
+  setTrackingButtonsEnabled(true);
+
   if (navigator.geolocation) {
     watchId = navigator.geolocation.watchPosition(
       position => {
         const { latitude, longitude, accuracy } = position.coords;
-        if (accuracy > 25) return;
+        if (accuracy > 50) return;
 
         const latLng = { lat: latitude, lng: longitude };
+
         if (lastCoords) {
           const dist = haversineDistance(lastCoords, latLng);
-          if (dist > 0.2) return;
+          if (dist > 1 || dist < 0.005) return;
           totalDistance += dist;
         }
 
         lastCoords = latLng;
         path.push(latLng);
-        marker.setLatLng(latLng);
-        if (!rotationEnabled) {
-  map.panTo(latLng, { animate: true });
-}
-        L.polyline(path, { color: 'green' }).addTo(map);
 
-        routeData.push({ type: "location", timestamp: Date.now(), coords: latLng });
+        marker.setLatLng(latLng);
+        map.panTo(latLng, { animate: true });
+
+        if (path.length > 1) {
+          const segment = [path[path.length - 2], path[path.length - 1]];
+          L.polyline(segment, { color: 'green', weight: 4 }).addTo(map);
+        }
+
+        routeData.push({
+          type: "location",
+          timestamp: Date.now(),
+          coords: latLng
+        });
+
         document.getElementById("distance").textContent = totalDistance.toFixed(2) + " km";
-        //document.getElementById("liveDistance").textContent = totalDistance.toFixed(2) + " km";
       },
       err => console.error("GPS error:", err),
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
     );
-  }
 
+    startTime = Date.now() - elapsedTime;
+    clearInterval(timerInterval);
+    updateTimerDisplay();
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+
+    if (rotationEnabled) {
+      handleOrientation({ alpha: lastHeading ?? 0 });
+    }
+  }
   startAutoBackup();
-}
+};
+
 
 function Summary() {
   alert(`🏁 Route Stats:
