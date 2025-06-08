@@ -173,7 +173,7 @@ function handleOrientation(e) {
 
   const scale = 2.0;
   mapEl.style.transform = `rotate(${-rotateDeg}deg) scale(${scale})`;
-  wrapper.style.transform = `rotate(${rotateDeg}deg)`;
+  wrapper.style.transform = `rotate(${rotateDeg}deg) scale(${scale})`;
 
   // Update compass if present
   const compass = document.getElementById("compassArrow");
