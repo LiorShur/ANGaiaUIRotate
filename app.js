@@ -65,64 +65,65 @@ document.addEventListener("click", function (e) {
   }
 });
 
-function handleOrientation(e) {
-  
-  const alpha = event.alpha;
+function handleOrientation(event) {
+  const now = Date.now();
+  if (now - lastOrientationUpdate < 200) return; // Throttle
 
-  if (!rotationEnabled || alpha == null) return;
+  let alpha = event.alpha;
+  if (typeof alpha !== "number") return;
 
-  if (now - lastUpdate < 100) return;
-  lastUpdate = now;
-
-  // Smooth interpolation
-  rotateDeg = smoothHeading(alpha, rotateDeg);
-  lastHeading = rotateDeg;
+  lastOrientationUpdate = now;
+  const smoothed = smoothHeading(alpha, rotateDeg);
+  rotateDeg = smoothed;
+  currentRotation = smoothed;
 
   const mapEl = document.getElementById("map");
   const wrapper = document.getElementById("mapWrapper");
-  if (!mapEl || !wrapper) return;
 
-  const heading = 360 - alpha;  // north-aligned
-  const smoothed = smoothHeading(heading, lastHeading);
+  if (rotationEnabled && mapEl && wrapper) {
+    wrapper.style.transform = `rotate(${-rotateDeg}deg) scale(2)`;
+    mapEl.style.transform = `rotate(${rotateDeg}deg)`;
+  }
 
-  lastHeading = smoothed;
-  rotateDeg = smoothed;
+  updateCompass(rotateDeg); // Optional if you have a compass UI
+}
 
-  const transform = `rotate(${rotateDeg}deg) scale(2)`; // adjust scale if needed
-  document.getElementById("mapWrapper").style.transform = transform;
-  document.getElementById("map").style.transform = transform;
+function smoothHeading(alpha, previous) {
+  const delta = ((alpha - previous + 540) % 360) - 180;
+  return previous + delta * 0.2; // Adjust smoothing factor as needed
+}
 
-  // Update compass if present
-  const compass = document.getElementById("compassArrow");
-  if (compass) {
-    compass.style.transform = `rotate(${rotateDeg}deg)`;
+function toggleRotation() {
+  rotationEnabled = !rotationEnabled;
+  const mapEl = document.getElementById("map");
+  const wrapper = document.getElementById("mapWrapper");
+
+  if (!rotationEnabled) {
+    if (wrapper && mapEl) {
+      wrapper.style.transform = "";
+      mapEl.style.transform = "";
+    }
+
+    if (orientationListenerActive) {
+      window.removeEventListener("deviceorientation", handleOrientation);
+      orientationListenerActive = false;
+    }
+
+    console.log("🧭 Rotation disabled.");
+  } else {
+    window.addEventListener("deviceorientation", handleOrientation);
+    orientationListenerActive = true;
+    if (currentRotation) {
+      handleOrientation({ alpha: currentRotation });
+    }
+    console.log("🧭 Rotation enabled.");
   }
 }
 
-function smoothHeading(target, current, smoothing = 0.1) {
-  let delta = target - current;
-  if (delta > 180) delta -= 360;
-  if (delta < -180) delta += 360;
-  return current + delta * smoothing;
-}
-function toggleRotation() {
-  rotationEnabled = !rotationEnabled;
-
-  if (rotationEnabled && !orientationListenerActive) {
-    window.addEventListener("deviceorientationabsolute", handleOrientation, true);
-    orientationListenerActive = true;
-
-    // Trigger initial heading
-    if (lastHeading != null) {
-      handleOrientation({ alpha: lastHeading });
-    }
-  } else if (!rotationEnabled && orientationListenerActive) {
-    window.removeEventListener("deviceorientationabsolute", handleOrientation, true);
-    orientationListenerActive = false;
-
-    // Reset transforms
-    document.getElementById("map").style.transform = "";
-    document.getElementById("mapWrapper").style.transform = "";
+function updateCompass(angle) {
+  const compass = document.getElementById("compass");
+  if (compass) {
+    compass.style.transform = `rotate(${-angle}deg)`;
   }
 }
 
