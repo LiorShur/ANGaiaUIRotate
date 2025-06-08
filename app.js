@@ -21,6 +21,7 @@ let orientationListenerActive = false;
 let lastUpdate = 0;
 let lastRotationUpdate = 0;
 let currentRotation = 0;
+let lastOrientationUpdate = 0;
 
 function setControlButtonsEnabled(enabled) {
   const idsToDisable = [
@@ -98,11 +99,22 @@ function toggleRotation() {
   const mapEl = document.getElementById("map");
   const wrapper = document.getElementById("mapWrapper");
 
+  // if (!rotationEnabled) {
+  //   if (wrapper && mapEl) {
+  //     wrapper.style.transform = "";
+  //     mapEl.style.transform = "";
+  //   }
   if (!rotationEnabled) {
-    if (wrapper && mapEl) {
-      wrapper.style.transform = "";
-      mapEl.style.transform = "";
-    }
+    // Reset transforms
+    mapWrapper.style.transform = "none";
+    mapEl.style.transform = "none";
+
+    // Reset compass
+    const compass = document.getElementById("compass");
+    if (compass) compass.style.transform = "none";
+
+    return;
+  }
 
     if (orientationListenerActive) {
       window.removeEventListener("deviceorientation", handleOrientation);
