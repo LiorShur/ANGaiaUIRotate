@@ -146,7 +146,7 @@ function setControlButtonsEnabled(enabled) {
 window.addEventListener("deviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation", handleOrientation, true);
 
 //window.addEventListener("deviceorientationabsolute", handleOrientation, true);
-window.addEventListener("deviceorientation", handleOrientation, true);
+//window.addEventListener("deviceorientation", handleOrientation, true);
 
 // 2. Toggle button for enabling/disabling map rotation
 document.getElementById("rotationToggle").addEventListener("click", toggleRotation);
