@@ -122,18 +122,17 @@ function toggleRotation() {
     if (orientationListenerActive) {
       window.removeEventListener("deviceorientation", handleOrientation);
       orientationListenerActive = false;
-    }
-
-    console.log("🧭 Rotation disabled.");
+      console.log("🧭 Rotation disabled.");
+    
   } else {
     window.addEventListener("deviceorientation", handleOrientation);
     orientationListenerActive = true;
     if (currentRotation) {
       handleOrientation({ alpha: currentRotation });
+      console.log("🧭 Rotation enabled.");
     }
-    console.log("🧭 Rotation enabled.");
   }
-}
+
 
 function updateCompass(angle) {
   const compass = document.getElementById("compass");
@@ -141,6 +140,8 @@ function updateCompass(angle) {
     compass.style.transform = `rotate(${-angle}deg)`;
   }
 }
+}
+
 
 
 function setTrackingButtonsEnabled(enabled) {
