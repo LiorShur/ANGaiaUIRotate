@@ -101,37 +101,36 @@ function toggleRotation() {
   rotationEnabled = !rotationEnabled;
   const mapEl = document.getElementById("map");
   const wrapper = document.getElementById("mapWrapper");
+  const compass = document.getElementById("compass");
 
-  // if (!rotationEnabled) {
-  //   if (wrapper && mapEl) {
-  //     wrapper.style.transform = "";
-  //     mapEl.style.transform = "";
-  //   }
   if (!rotationEnabled) {
-    // Reset transforms
-    mapWrapper.style.transform = "none";
-    mapEl.style.transform = "none";
-
-    // Reset compass
-    const compass = document.getElementById("compass");
+    // Disable rotation
+    if (wrapper && mapEl) {
+      wrapper.style.transform = "none";
+      mapEl.style.transform = "none";
+    }
     if (compass) compass.style.transform = "none";
-
-    return;
-  }
 
     if (orientationListenerActive) {
       window.removeEventListener("deviceorientation", handleOrientation);
       orientationListenerActive = false;
-      console.log("🧭 Rotation disabled.");
-    
-  } else {
-    window.addEventListener("deviceorientation", handleOrientation);
-    orientationListenerActive = true;
-    if (currentRotation) {
-      handleOrientation({ alpha: currentRotation });
-      console.log("🧭 Rotation enabled.");
     }
+
+    console.log("🧭 Rotation disabled.");
+  } else {
+    // Enable rotation
+    if (!orientationListenerActive) {
+      window.addEventListener("deviceorientation", handleOrientation);
+      orientationListenerActive = true;
+    }
+
+    if (typeof currentRotation !== "undefined") {
+      handleOrientation({ alpha: currentRotation });
+    }
+
+    console.log("🧭 Rotation enabled.");
   }
+}
 
 
 function updateCompass(angle) {
